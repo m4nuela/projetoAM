@@ -1,19 +1,18 @@
-%%{
+
 % IMPORTACAO E PRE-PROCESSAMENTO DOS DADOS
 clear all;
 
-importIris;
+%importIris;
 %importWine;
-%importZoo;
+importZoo;
 %importSonar;
 
 [m,n] = size(data);
-%data = data(randperm(m),:);
+data = data(randperm(m),:);
 
 % K-FOLD CROSS VALIDATION
 k = 10;
 kFolds = kFoldCrossValidation(data,k);
-%}
 
 % DIVISAO DOS DADOS ANTIGA
 %{
@@ -27,7 +26,6 @@ testSet = mixedRows(ceil(m*0.7):end,:);
 
 % Taxas de acerto em cada iteracao
 Results = [];
-BERs = [];
 InstanceReductions = [];
 
 % Para todas as K configurações de conjuntos
@@ -46,20 +44,16 @@ for i = folds
     
     % ALGORITMO PROPOSTO
     % Gerado um conjunto de protótipos pelo IRAHC
-    
     S = IRAHC(trainingSet);
-    %S = ENN(trainingSet);
-    
+
     % TESTE DO KNN SOBRE S
-    [result,BER] = TestKNN(S,testSet);
-%{  
+    result = TestKNN(S,testSet);
     disp('K-Fold:');
     disp(i);
     disp('   Precisão');
     disp(result);
-  %}
+    
     Results = [Results ; result];
-    BERs = [BERs; BER];
     
     reduction = ((size(trainingSet,1) - size(S,1)) / size(trainingSet,1)) * 100;
     InstanceReductions = [InstanceReductions; reduction];
@@ -76,11 +70,6 @@ disp(100 - accuracy);
 
 IR = mean(InstanceReductions);
 disp('Reduction Percentage - IR');
-disp(IR);
-
-
-IR = mean(BERs);
-disp('Balance Error Rate  - BER');
 disp(IR);
 
 

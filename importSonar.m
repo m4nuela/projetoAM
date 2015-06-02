@@ -1,7 +1,7 @@
 %% Import data from text file.
 % Script for importing data from the following text file:
 %
-%    
+%    C:\Users\Nicolas\Desktop\Projeto AM\Bases_de_Dados\sonar.all-data.txt
 %
 % To extend the code to different selected data or a different text file,
 % generate a function instead of a script.

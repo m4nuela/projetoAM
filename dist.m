@@ -3,7 +3,7 @@ function distance = dist(X, mini, maxi)
     
     R = (maxi - mini)/2;
     
-    diff = abs(X - mid) - R;
+    diff = (X - mid) - R;
     
     distance = max(diff);
 end

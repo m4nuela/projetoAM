@@ -1,7 +1,7 @@
 %% Import data from text file.
 % Script for importing data from the following text file:
 %
-%   
+%    C:\Program Files\MATLAB\MATLAB Production Server\R2015a\bin\iris.data.txt
 %
 % To extend the code to different selected data or a different text file,
 % generate a function instead of a script.
@@ -12,7 +12,7 @@
 filename = strcat(pwd, '\Bases_de_Dados\iris.data.txt');
 delimiter = ',';
 
-%x Format string for each line of text:
+%% Format string for each line of text:
 %   column1: double (%f)
 %	column2: double (%f)
 %   column3: double (%f)
