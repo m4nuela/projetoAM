@@ -55,21 +55,22 @@ function S = IRAHC(trainingSet, TETA)
             end
         end
 
-        % Se nao pertence, procura por um HR que seja de mesma classe que X e 
+        % Se nao pertence, procura por um HR que 
         % satisfaça o criterio de expansao
         if (belongs == 0)
             for i = distances(:,1)'
                 %if (HR(i).class == class)
+                
+                    mini = min(HR(i).mini, X);
+                    maxi = max(HR(i).maxi, X);
+                    
                     % Calcula a diferenca entre as colunas de X e do Hiper-Retangulo
-                    diff = max(HR(i).maxi,X) - min(HR(i).mini,X);
+                    diff = maxi - mini;
                     % Compara com o parametro de expansao
                     resp = (diff <= N*TETA);
 
                     % Se satisfaz o criterio, entao expande HR(i) e add X
                     if not(ismember(0,resp))
-                        mini = min(HR(i).mini, X);
-                        maxi = max(HR(i).maxi, X);
-
                         HR(i).instances = [HR(i).instances ; p];
                         HR(i).distances = [HR(i).distances ; distances(i,2)];
 
