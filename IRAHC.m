@@ -1,17 +1,13 @@
 function S = IRAHC(trainingSet, TETA)
-
-    % ALGORITMO IRAHC
     % PARTE I
     
+    % Separa os dados e suas classes
     samples = trainingSet(:,1:end-1);
     labels = trainingSet(:,end);
     
     % Vetor unitario que multiplica TETA
     N = zeros(1,size(samples,2)) + 1;
     
-    % Parametro de expansao
-    
-
     % Primeio padrão escolhido
     X = samples(1,:);
 
@@ -28,7 +24,7 @@ function S = IRAHC(trainingSet, TETA)
         X = samples(p,:);
         class = labels(p);
 
-        % Flag para identificar se o padrão atual X pertence a algum cluster
+        % Flag para identificar se o padrão atual X foi alocado a algum cluster
         belongs = 0;
 
         % Calcula as distancias entre X e todos os Hiper-Retangulos
@@ -55,15 +51,12 @@ function S = IRAHC(trainingSet, TETA)
             end
         end
 
-        % Se nao pertence, procura por um HR que 
+        % Se nao pertence, procura por um HR que seja de mesma classe que X e 
         % satisfaça o criterio de expansao
         if (belongs == 0)
             for i = distances(:,1)'
-                %if (HR(i).class == class)
-                
-                    mini = min(HR(i).mini, X);
                     maxi = max(HR(i).maxi, X);
-                    
+                    mini = min(HR(i).mini, X);
                     % Calcula a diferenca entre as colunas de X e do Hiper-Retangulo
                     diff = maxi - mini;
                     % Compara com o parametro de expansao
@@ -71,13 +64,14 @@ function S = IRAHC(trainingSet, TETA)
 
                     % Se satisfaz o criterio, entao expande HR(i) e add X
                     if not(ismember(0,resp))
+                        HR(i).mini = mini;
+                        HR(i).maxi = maxi;
                         HR(i).instances = [HR(i).instances ; p];
                         HR(i).distances = [HR(i).distances ; distances(i,2)];
 
                         belongs = 1;
                         break;
                     end
-                %end
             end
         end
 
