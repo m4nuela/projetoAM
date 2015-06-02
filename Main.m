@@ -52,11 +52,12 @@ for i = folds
     
     % TESTE DO KNN SOBRE S
     [result,BER] = TestKNN(S,testSet);
+%{  
     disp('K-Fold:');
     disp(i);
     disp('   Precisão');
     disp(result);
-    
+  %}
     Results = [Results ; result];
     BERs = [BERs; BER];
     
