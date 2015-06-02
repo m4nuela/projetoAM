@@ -1,0 +1,35 @@
+PSEUDO-CÓDIGO
+IRAHC MODIFICADO
+ENTRADA: CONJUNTO DE TREINAMENTO T
+SAIDA: CONJUNTO DE PROTÓTIPOS S
+
+PARTE 1: AGRUPAMENTO POR HIPER-RETÂNGULOS
+
+    0. Normaliza-se o conjunto de dados.
+    1. Cria-se um Hiper-Retângulo HR1 de classe y a partir do primeiro exemplo de T
+       P1(x,y), tal que mini = maxi = x.
+
+    2. Para as demais instâcias Pi(x,y) do conjunto de treinamento:
+        2.1 Calcula-se a distância de Pi para todos os hiper-retângulos HR da seguinte forma:
+            dist(x,mini,maxi) = MAX(|x - mid| - R) tal que mid = (maxi + mini)/2 e R = (maxi - mini)/2. 
+ 
+        2.2 Procura-se por um HR com a menor distância não-positiva para Pi e que seja da mesma classe
+            2.2.1 Caso Pi não pertença ao HR, o adicione.
+
+        2.3 Caso não seja encontrado, procura-se por um HR que satisfaça o seguinte critério de expansão:
+            (MAX(maxi,x) - MIN(mini,x)) <= N * Teta, onde N é um vetor unitário do tamanho de Pi e 
+            Teta é um parâmetro entre 0 e 1.
+
+            2.3.1 Se encontrar, adiciona Pi a este cluster e expande o HR da seguinte forma:
+                mini = MIN(mini,x), maxi = MAX(maxi,x). 
+
+            2.3.2 Caso contrário, crie um novo HR tal que mini = maxi = x.
+ 
+
+PARTE 2: CRIACAO DE PROTÓTIPOS
+
+    1. Inicializa S como um conjunto vazio
+    2. Para cada HR formado:
+        2.1 Se todos as suas instâncias forem da mesma classe calcule e adicione a média dos valores a S.
+        2.2 Caso contrário, adicione todas as instâncias de HR a S.
+    3. Retorne S

@@ -2,10 +2,10 @@
 % IMPORTACAO E PRE-PROCESSAMENTO DOS DADOS
 clear all;
 
-%importIris;
+importIris;
 %importWine;
 %importZoo;
-importSonar;
+%importSonar;
 
 [m,n] = size(data);
 
@@ -31,6 +31,10 @@ TETAResults = zeros(10,10);
 BERs = zeros(10,10);
 % Taxa de reducao para cada valor de teta de cada fold
 InstanceReductions = zeros(10,10);
+
+ENN_Results = zeros(10,1);
+ENN_IR = zeros(10,1);
+ENN_BERs = zeros(10,1);
 
 % Para todas as K configurações de conjuntos (folds)
 folds = 1:k;
@@ -70,7 +74,7 @@ for i = folds
     for TETA = TETAS
         % Gera um conjunto de protótipos pelo IRAHC
         S = IRAHC(trainingSet,TETA);
-        
+      
         % Teste do KNN(k=3) sobre o parametro teta atual
         [accuracy,BER] = TestKNN(S,testSet);
         
@@ -81,10 +85,20 @@ for i = folds
         InstanceReductions(i,TETA == TETAS) = reduction;
         
         BERs(i,TETA == TETAS) = BER;
-
     end
+   
+    % ENN
+    S = ENN(trainingSet);
+    [accuracy,BER] = TestKNN(S,testSet);
+    ENN_Results(i) = accuracy;
+    reduction = ((size(trainingSet,1) - size(S,1)) / size(trainingSet,1)) * 100;
+    ENN_IR(i) = reduction;
+    ENN_BERs(i) = BER;
+    
 end
 
+%% IRAHC RESULTS
+disp('IRAHC RESULTS');
 % Calcula a taxa de acerto média para cada teta de cada fold
 accuracy = mean(TETAResults);
 
@@ -105,5 +119,33 @@ ber = mean(BERs)';
 disp('Balance Error Rate');
 disp('    TETA      BER');
 disp([TETAS',ber]);
+
+
+%% ENN RESULTS
+disp('');
+disp('ENN RESULTS');
+accuracy = mean(ENN_Results);
+disp('Error Rate');
+Errs = 100 - accuracy;
+disp(Errs);
+disp('Reduction Percentage');
+IR = mean(ENN_IR);
+disp(IR);
+disp('Balance Error Rate');
+ber = mean(ENN_BERs);
+disp(ber);
+
+%{
+:Iris:
+    IRAHC (TETA=0.2) => ERR=4; IR=66.3; BER=1.3
+    ENN => ERR=4; RI=4.6; BER=0.47
+
+:Zoo:
+
+:Wine:
+
+:Sonar:
+
+%}
 
 
