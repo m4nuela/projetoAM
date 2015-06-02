@@ -1,7 +1,14 @@
-function result = TestKNN(trainingSet, testSet)
-    
+function [result,BER] = TestKNN(trainingSet, testSet)
+
     k = 3;
     correct = 0;
+    [classes, ~, map_classes] = unique(trainingSet(:,end));
+    % Conta o numero de padroes erroneamente classificados de cada classe
+    berArray = zeros(size(classes,1),2);
+    berArray(:,1) = 1:size(classes,1);
+    % Taxa balanceada do erro
+    BER = 0;
+    
     for w = 1:size(testSet,1)
         % Vetor de teste/entrada
         X = testSet(w,1:end-1);
@@ -13,7 +20,7 @@ function result = TestKNN(trainingSet, testSet)
         for z = 1:size(trainingSet,1)
             Y = trainingSet(z,1:(end-1));
             % Distancia euclidiana normalizada entre X e Y
-            distance = euclidean(X,Y);
+            distance = euclidean(X,Y); %euclideanNorm(X,Y,ranges);
             distances(z,:) = [z,distance];
         end
 
@@ -46,13 +53,26 @@ function result = TestKNN(trainingSet, testSet)
         % mesma classe do vetor de teste/entrada X.
         if (testSet(w,end) == resp)
             correct = correct + 1;
+        else
+            berArray(resp,2) = berArray(resp,2) + 1;
         end
+        
 
     end
     
     % Guarda a precisão computada e retorna seu valor
     result = (correct/size(testSet,1))*100;
-
     
+    % Calcula a taxa balanceada do erro
+    for m = 1:size(classes,1)
+        % Para cada classe, divide o numero de instancias erroneamente
+        % classificadas pelo total de instancias da classe atual
+        samples = trainingSet(map_classes == m,:);
+        countm = size(samples,1);
+        BER = BER + (berArray(m,2)/countm);
+    end
+    
+    BER = (1/size(classes,1)) * BER * 100;
+   
 end
 
