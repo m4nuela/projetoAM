@@ -1,6 +1,5 @@
 function S = IRAHC(trainingSet, TETA)
     % PARTE I
-    
     % Separa os dados e suas classes
     samples = trainingSet(:,1:end-1);
     labels = trainingSet(:,end);
@@ -24,7 +23,7 @@ function S = IRAHC(trainingSet, TETA)
         X = samples(p,:);
         class = labels(p);
 
-        % Flag para identificar se o padrão atual X foi alocado a algum cluster
+        % Flag para identificar se o padrão atual X pertence a algum cluster
         belongs = 0;
 
         % Calcula as distancias entre X e todos os Hiper-Retangulos
@@ -55,23 +54,24 @@ function S = IRAHC(trainingSet, TETA)
         % satisfaça o criterio de expansao
         if (belongs == 0)
             for i = distances(:,1)'
-                    maxi = max(HR(i).maxi, X);
-                    mini = min(HR(i).mini, X);
+                %if (HR(i).class == class)
                     % Calcula a diferenca entre as colunas de X e do Hiper-Retangulo
-                    diff = maxi - mini;
+                    diff = max(HR(i).maxi,X) - min(HR(i).mini,X);
                     % Compara com o parametro de expansao
                     resp = (diff <= N*TETA);
 
                     % Se satisfaz o criterio, entao expande HR(i) e add X
                     if not(ismember(0,resp))
-                        HR(i).mini = mini;
-                        HR(i).maxi = maxi;
+                        mini = min(HR(i).mini, X);
+                        maxi = max(HR(i).maxi, X);
+
                         HR(i).instances = [HR(i).instances ; p];
                         HR(i).distances = [HR(i).distances ; distances(i,2)];
 
                         belongs = 1;
                         break;
                     end
+                %end
             end
         end
 

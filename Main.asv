@@ -44,11 +44,11 @@ for i = folds
     trainingSet = trainingSet(randperm(size(trainingSet,1)),:);
     
     % Calcula o range pra cada coluna do conjunto de treinamento
-    ranges = zeros((size(trainingSet,2)-1),2);
+    ranges = [;
     for j = 1:(size(trainingSet,2)-1)
         Maxi = max(trainingSet(:,j));
         Mini = min(trainingSet(:,j));
-        ranges(j,:) = [(Maxi - Mini), Mini];
+        ranges = [ranges ; [(Maxi - Mini), Mini] ];
     end
     
     % Normaliza o conjunto de treinamento
