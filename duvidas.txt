@@ -1,0 +1,5 @@
+1) Calculo da distancia (distancia nao positiva)
+2) na condicao de expansao deve ser considerada a classe do hiper retangulo?
+3) como funciona a sobreposição de hiper retangulos
+4) como 1 hiper retangulo pode ter elemetos de varias classes distintas
+5) Devemos implementar os algoritmos de comparacao?
