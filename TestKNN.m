@@ -2,10 +2,10 @@ function [result,BER] = TestKNN(trainingSet, testSet)
 
     k = 3;
     correct = 0;
-    [classes, ~, map_classes] = unique(trainingSet(:,end));
+    [classes, ~, map_classes] = unique(testSet(:,end));
     % Conta o numero de padroes erroneamente classificados de cada classe
-    berArray = zeros(size(classes,1),2);
-    berArray(:,1) = 1:size(classes,1);
+    berArray = [classes,zeros(size(classes,1),1)]; %zeros(size(classes,1),2);
+    %berArray(:,1) = 1:size(classes,1);
     % Taxa balanceada do erro
     BER = 0;
     
@@ -51,10 +51,12 @@ function [result,BER] = TestKNN(trainingSet, testSet)
 
         % Contador é incrementado quando a resposta predita for igual a
         % mesma classe do vetor de teste/entrada X.
-        if (testSet(w,end) == resp)
+        realClass = testSet(w,end);
+        if (realClass == resp)
             correct = correct + 1;
         else
-            berArray(resp,2) = berArray(resp,2) + 1;
+            index = find(berArray(:,1) == realClass);
+            berArray(index,2) = berArray(index,2) + 1;
         end
         
 
@@ -67,8 +69,7 @@ function [result,BER] = TestKNN(trainingSet, testSet)
     for m = 1:size(classes,1)
         % Para cada classe, divide o numero de instancias erroneamente
         % classificadas pelo total de instancias da classe atual
-        samples = trainingSet(map_classes == m,:);
-        countm = size(samples,1);
+        countm = sum(ismember(map_classes,m));
         BER = BER + (berArray(m,2)/countm);
     end
     

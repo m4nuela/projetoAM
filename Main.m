@@ -2,10 +2,34 @@
 % IMPORTACAO E PRE-PROCESSAMENTO DOS DADOS
 clear all;
 
-importIris;
-%importWine;
-%importZoo;
-%importSonar;
+
+%ESCOLHA DA BASE DE DADOS
+repetirLacoBase=1;
+while repetirLacoBase
+  escolha = input('Escolha a base de dados \n 0 - Iris \n 1 - Zoo \n 2 - Wine \n 3 - Sonar \n 4 - Glass \n');
+     if(escolha == 0)
+        repetirLacoBase = 0;
+        importIris;
+        dataBaseName = 'Iris';
+     elseif (escolha == 1)
+        repetirLacoBase = 0;
+        importZoo;
+        dataBaseName = 'Zoo';
+     elseif (escolha == 2)
+        repetirLacoBase = 0;
+        importWine;
+        dataBaseName = 'Wine'; 
+     elseif (escolha == 3)
+        repetirLacoBase = 0;
+        importSonar;
+        dataBaseName = 'Sonar';
+     elseif (escolha == 4)
+        repetirLacoBase = 0;
+        importGlass;
+        dataBaseName = 'Glass';
+    end    
+end
+
 
 [m,n] = size(data);
 
@@ -97,7 +121,10 @@ for i = folds
     
 end
 
-%% IRAHC RESULTS
+
+disp(dataBaseName)
+
+% IRAHC RESULTS
 disp('IRAHC RESULTS');
 % Calcula a taxa de acerto média para cada teta de cada fold
 accuracy = mean(TETAResults);
@@ -121,7 +148,7 @@ disp('    TETA      BER');
 disp([TETAS',ber]);
 
 
-%% ENN RESULTS
+% ENN RESULTS
 disp('');
 disp('ENN RESULTS');
 accuracy = mean(ENN_Results);

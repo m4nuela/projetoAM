@@ -2,10 +2,29 @@
 % IMPORTACAO E PRE-PROCESSAMENTO DOS DADOS
 clear all;
 
-importIris;
-%importWine;
-%importZoo;
-%importSonar;
+
+while repetirLacoBase
+  escolha = input('Você deseja rodar o algoritmo KNN com que base de dados? \n 0 - Iris \n 1 - Zoo \n 2 - Wine \n \n 3 - Sonar \n');
+     if(escolha==0)
+        repetirLacoBase = 0;
+        importIris();
+        dataBaseName = 'Iris';
+     elseif (escolha ==1)
+        repetirLacoBase = 0;
+        importZoo();
+        dataBaseName = 'Zoo';
+     elseif (escolha ==2)
+        repetirLacoBase = 0;
+        importZoo();
+        dataBaseName = 'Wine';
+        
+     elseif (escolha ==3)
+        repetirLacoBase = 0;
+        importSonar
+        dataBaseName = 'Sonar';
+    end    
+end
+
 
 [m,n] = size(data);
 
@@ -136,9 +155,16 @@ ber = mean(ENN_BERs);
 disp(ber);
 
 %{
-<Iris>
-IRAHC (TETA=0.2) => ERR=4; IR=66.3; BER=1.3
-ENN => ERR=4; RI=4.6; 
+:Iris:
+    IRAHC (TETA=0.2) => ERR=4; IR=66.3; BER=1.3
+    ENN => ERR=4; RI=4.6; BER=0.47
+
+:Zoo:
+
+:Wine:
+
+:Sonar:
+
 %}
 
 
