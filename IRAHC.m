@@ -15,8 +15,7 @@ function S = IRAHC(trainingSet, TETA)
     class = labels(1);
     mini = X;
     maxi = X;
-    distance = dist(X, mini, maxi);
-    HR(1) = struct( 'class', class, 'mini', mini, 'maxi', maxi, 'instances', 1, 'distances', distance);
+    HR(1) = struct( 'class', class, 'mini', mini, 'maxi', maxi, 'instances', 1);
 
     % Para todos os demais padrões de treinamento
     for p = 2:size(samples,1)
@@ -43,7 +42,6 @@ function S = IRAHC(trainingSet, TETA)
             if ((HR(i).class == class) && (distances(i,2) <= 0))
                 if not(ismember(p, HR(i).instances))
                     HR(i).instances = [HR(i).instances ; p];
-                    HR(i).distances = [HR(i).distances ; distances(i,2)];
                 end;
                 
                 belongs = 1;
@@ -67,8 +65,7 @@ function S = IRAHC(trainingSet, TETA)
                         HR(i).mini = mini;
                         HR(i).maxi = maxi;
                         HR(i).instances = [HR(i).instances ; p];
-                        HR(i).distances = [HR(i).distances ; distances(i,2)];
-
+                        
                         belongs = 1;
                         break;
                     end
@@ -79,12 +76,25 @@ function S = IRAHC(trainingSet, TETA)
         if (belongs == 0)
             mini = X;
             maxi = X;
-            distance = dist(X, mini, maxi);
-            HR = [HR ; struct('class', class, 'mini', mini, 'maxi', maxi, 'instances', p, 'distances', distance)];
+            HR = [HR ; struct('class', class, 'mini', mini, 'maxi', maxi, 'instances', p)];
         end    
 
     end
-
+%{
+    % teste das distancias nao-positivas
+    for i = 1:size(HR,1)
+        allNoPositive = 1;
+        for j = 1:size(HR(i).instances)
+            Pi = trainingSet(HR(i).instances(j),1:end-1);
+            distance = dist(Pi, HR(i).mini, HR(i).maxi);
+            if(distance > 0 )
+                allNoPositive = 0;
+                break;
+            end
+        end
+        disp(allNoPositive);
+    end
+%}
     % PARTE II
 
     % Conjunto de prototipos a ser gerado
