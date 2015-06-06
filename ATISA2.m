@@ -22,9 +22,9 @@ function S = ATISA2(trainingSet)
     for i = 2:size(T,1)
         X = T(i,1:end-2);
         
-        [neighbor, distance] = KNN(X,S(:,1:end-1));
+        [neighbor, distance, class_max] = KNN(X,S(:,1:end-1),1);
         
-        if ((T(i,end-1) ~= S(neighbor,end-1)) | (distance > S(neighbor,end)))
+        if ((T(i,end-1) ~= class_max) | (distance > S(neighbor,end)))
             S = [S ; T(i,:)];
         end
     end

@@ -28,6 +28,7 @@ for j = 1:size(testSet,2)-1
     testSet(:,j) = (testSet(:,j) - ranges(j,2))/ranges(j,1);
 end
 
+%{
 disp('Seleção de protótipos: ATISA2');
 S = ATISA2(trainingSet);
 disp('Quantidade de protótipos: ');
@@ -37,7 +38,17 @@ disp('Teste do KNN');
 [result, ~] = TestKNN(S,testSet);
 disp('Precisão')
 disp(result);
+%}
 
+disp('Seleção de protótipos: drop3');
+S = drop3(trainingSet);
+disp('Quantidade de protótipos: ');
+disp(size(S,1));
+
+disp('Teste do KNN');
+[result, ~] = TestKNN(S,testSet);
+disp('Precisão')
+disp(result);
 
 
 

@@ -14,9 +14,9 @@ function S = ENN(trainingSet)
         if (~marked(j))
           % Pega o vizinho mais próximo da instância, sobre o conjunto de
           % treinamento.
-          [neighbor,~] = KNN(trainingSet(j,1:end-1),trainingSet);
+          [~,~,class_max] = KNN(trainingSet(j,1:end-1),trainingSet,1);
           % Marca-o caso sua classe seja diferente da instância atual
-          if(trainingSet(j,end) ~= trainingSet(neighbor,end))
+          if(trainingSet(j,end) ~= class_max)
               marked(j) = 1;
           end
         end
