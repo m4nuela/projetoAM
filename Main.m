@@ -63,6 +63,9 @@ ATISA2_Results = zeros(10,1);
 ATISA2_IR = zeros(10,1);
 ATISA2_BERs = zeros(10,1);
 
+DROP3_Results = zeros(10,1);
+DROP3_IR = zeros(10,1);
+DROP3_BERs = zeros(10,1);
 
 % Para todas as K configurações de conjuntos (folds)
 folds = 1:k;
@@ -131,10 +134,17 @@ for i = folds
     ATISA2_IR(i) = reduction;
     ATISA2_BERs(i) = BER;
     
+    % DROP3
+    S = DROP3(trainingSet);
+    [accuracy,BER] = TestKNN(S,testSet);
+    DROP3_Results(i) = accuracy;
+    reduction = ((size(trainingSet,1) - size(S,1)) / size(trainingSet,1)) * 100;
+    DROP3_IR(i) = reduction;
+    DROP3_BERs(i) = BER;
 end
 
 
-disp(dataBaseName)
+disp(dataBaseName);
 
 % IRAHC RESULTS
 disp('IRAHC RESULTS');
@@ -189,6 +199,23 @@ R = mean(ATISA2_IR);
 disp(R);
 disp('Balance Error Rate');
 ber = mean(ATISA2_BERs);
+disp(ber);
+%disp('Accuracy x Reduction');
+%AR = accuracy * R;
+%disp(AR);
+
+% DROP3 RESULTS
+disp('');
+disp('DROP3 RESULTS');
+accuracy = mean(DROP3_Results);
+disp('Error Rate');
+Errs = 100 - accuracy;
+disp(Errs);
+disp('Reduction Percentage');
+R = mean(DROP3_IR);
+disp(R);
+disp('Balance Error Rate');
+ber = mean(DROP3_BERs);
 disp(ber);
 %disp('Accuracy x Reduction');
 %AR = accuracy * R;

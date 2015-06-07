@@ -74,20 +74,17 @@ function P = DROP3(T)
         end
         
         if(marked(s))
+            % Para todos os associados, retirar s da l
             for a = associates'
-                % Retira s da lista de vizinhos de seus associados
                 neighbors = Neighbors(a).neighbors;
                 neighbors = neighbors(s ~= neighbors);
                 Neighbors(a).neighbors = neighbors;
-                
-                % Procura pelo proximo vizinho mais proximo e poe o
-                % associado em sua respectiva lista de associados
+
                 new_neighbor = neighbors(k);
                 associates = Associates(new_neighbor).associates;
                 Associates(new_neighbor).associates = [associates; a];
             end
-            
-            % Remove s da lista de associados de seus vizinhos
+
             s_neighbors = Neighbors(s).neighbors(1:k);
             for n = s_neighbors'
                 associates = Associates(n).associates;
@@ -95,7 +92,6 @@ function P = DROP3(T)
             end
             
         else
-            % Coloca s no conjunto final de prototipos
             P = [P; S(s,:)];
         end
     end

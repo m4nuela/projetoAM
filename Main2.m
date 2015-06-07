@@ -1,4 +1,4 @@
-
+%%{
 clear all;
 
 importIris;
@@ -39,9 +39,9 @@ disp('Teste do KNN');
 disp('Precisão')
 disp(result);
 %}
-
+%}
 disp('Seleção de protótipos: drop3');
-S = drop3(trainingSet);
+S = DROP3(trainingSet);
 disp('Quantidade de protótipos: ');
 disp(size(S,1));
 
