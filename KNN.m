@@ -14,10 +14,15 @@ function [neighbor, distance, class] = KNN(X, T, k)
     distances = sortrows(distances, 2);
     
     if (distances(1,2) == 0)
-        % Selecionando o indice do vetor mais próximo
-        neighbor = distances(2:k+1,1);
-        distance = distances(2:k+1,2);
         
+        if size(distances,1) > 1
+            % Selecionando o indice do vetor mais próximo
+            neighbor = distances(2:k+1,1);
+            distance = distances(2:k+1,2);
+        else
+             neighbor = distances(1,1);
+             distance = distances(1,2);
+        end
     else
         neighbor = distances(1:k,1);
         distance = distances(1:k,2);

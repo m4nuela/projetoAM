@@ -14,7 +14,7 @@ function P = DROP3(T)
         X = S(s,1:end-1);
         % Armazena uma quantidade maior de vizinhos para a fase de buscar o
         % outro vizinho mais proximo
-        neighbors = KNN(X,S,k+15);
+        neighbors = KNN(X,S,k+25);
         Neighbors(s).neighbors = neighbors;
         
         for n = neighbors(1:k)'

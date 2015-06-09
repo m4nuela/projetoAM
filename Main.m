@@ -5,7 +5,7 @@ clear all;
 %ESCOLHA DA BASE DE DADOS
 repetirLacoBase=1;
 while repetirLacoBase
-    escolha = input('Escolha a base de dados \n 0 - Iris \n 1 - Zoo \n 2 - Wine \n 3 - Sonar \n 4 - Glass \n');
+    escolha = input('Escolha a base de dados \n 0 - Iris \n 1 - Zoo \n 2 - Wine \n 3 - Sonar \n 4 - Glass \n 5 - Liver \n 6 - Ecoli \n 7 - Ionosphere \n');
     if(escolha == 0)
         repetirLacoBase = 0;
         importIris;
@@ -25,8 +25,20 @@ while repetirLacoBase
     elseif (escolha == 4)
         repetirLacoBase = 0;
         importGlass;
-        dataBaseName = 'Glass';
-    end    
+        dataBaseName = 'Glass'; 
+    elseif (escolha == 5)
+        repetirLacoBase = 0;
+        importLiver;
+        dataBaseName = 'Liver';  
+     elseif (escolha == 6)
+        repetirLacoBase = 0;
+        importEcoli;
+        dataBaseName = 'Ecoli';
+    elseif (escolha == 7)
+        repetirLacoBase = 0;
+        importIono;
+        dataBaseName = 'Ionosphere';
+    end  
 end
 
 
@@ -55,17 +67,23 @@ BERs = zeros(10,10);
 % Taxa de reducao para cada valor de THETA de cada fold
 InstanceReductions = zeros(10,10);
 
+%tempo de computação do algoritmo IRAHC com TETHA escolhido
+tempoI = 0;
+
 ENN_Results = zeros(10,1);
 ENN_IR = zeros(10,1);
 ENN_BERs = zeros(10,1);
+ENN_Time = 0;
 
 ATISA2_Results = zeros(10,1);
 ATISA2_IR = zeros(10,1);
 ATISA2_BERs = zeros(10,1);
+ATISA2_Time = 0;
 
 DROP3_Results = zeros(10,1);
 DROP3_IR = zeros(10,1);
 DROP3_BERs = zeros(10,1);
+DROP3_Time = 0;
 
 % Para todas as K configurações de conjuntos (folds)
 folds = 1:k;
@@ -83,7 +101,18 @@ for i = folds
     for j = 1:(size(trainingSet,2)-1)
         Maxi = max(trainingSet(:,j));
         Mini = min(trainingSet(:,j));
-        ranges(j,:) = [(Maxi - Mini), Mini];
+        range = Maxi-Mini;
+        if (Maxi-Mini)==0
+            range = Maxi;
+            if range == 0
+                ranges(j,:) = [1, 0];
+            else
+                ranges(j,:) = [range, 0];
+            end
+        else
+            ranges(j,:) = [range, Mini];
+        end
+        
     end
     
     % Normaliza o conjunto de treinamento
@@ -104,7 +133,13 @@ for i = folds
     % Para cada valor de expansao THETA
     for THETA = THETAS
         % Gera um conjunto de protótipos pelo IRAHC
-        S = IRAHC(trainingSet,THETA);
+        if THETA == 0.2
+            tic
+             S = IRAHC(trainingSet,THETA);
+            tempoI = tempoI + toc;
+        else
+             S = IRAHC(trainingSet,THETA);
+        end
       
         % Teste do KNN(k=3) sobre o parametro THETA atual
         [accuracy,BER] = TestKNN(S,testSet);
@@ -119,7 +154,9 @@ for i = folds
     end
    
     % ENN
+    tic
     S = ENN(trainingSet);
+    ENN_Time = ENN_Time + toc;
     [accuracy,BER] = TestKNN(S,testSet);
     ENN_Results(i) = accuracy;
     reduction = ((size(trainingSet,1) - size(S,1)) / size(trainingSet,1)) * 100;
@@ -127,7 +164,9 @@ for i = folds
     ENN_BERs(i) = BER;
     
     % ATISA2
+    tic
     S = ATISA2(trainingSet);
+    ATISA2_Time = ATISA2_Time + toc;
     [accuracy,BER] = TestKNN(S,testSet);
     ATISA2_Results(i) = accuracy;
     reduction = ((size(trainingSet,1) - size(S,1)) / size(trainingSet,1)) * 100;
@@ -135,7 +174,9 @@ for i = folds
     ATISA2_BERs(i) = BER;
     
     % DROP3
-    S = DROP3(trainingSet);
+    tic
+    S = drop3(trainingSet);
+    DROP3_Time = DROP3_Time + toc;
     [accuracy,BER] = TestKNN(S,testSet);
     DROP3_Results(i) = accuracy;
     reduction = ((size(trainingSet,1) - size(S,1)) / size(trainingSet,1)) * 100;
@@ -169,6 +210,9 @@ disp('Balance Error Rate');
 disp('    THETA      BER');
 disp([THETAS',ber]);
 
+disp('Average computation time')
+disp(tempoI/10);
+
 
 % ENN RESULTS
 disp('');
@@ -186,6 +230,8 @@ disp(ber);
 %disp('Accuracy x Reduction');
 %AR = accuracy * R;
 %disp(AR);
+disp('Average computation time')
+disp(ENN_Time/10);
 
 % ATISA2 RESULTS
 disp('');
@@ -203,6 +249,8 @@ disp(ber);
 %disp('Accuracy x Reduction');
 %AR = accuracy * R;
 %disp(AR);
+disp('Average computation time')
+disp(ATISA2_Time/10);
 
 % DROP3 RESULTS
 disp('');
@@ -220,4 +268,6 @@ disp(ber);
 %disp('Accuracy x Reduction');
 %AR = accuracy * R;
 %disp(AR);
+disp('Average computation time')
+disp(DROP3_Time/10);
 
