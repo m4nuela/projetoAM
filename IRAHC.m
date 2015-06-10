@@ -95,14 +95,23 @@ function S = IRAHC(trainingSet, TETA)
         disp(allNoPositive);
     end
 %}
-    % PARTE II
-
+   % PARTE II
     % Conjunto de prototipos a ser gerado
     S = [];
-
+    
     for i = 1:size(HR,1)
+        % Remover instâncias com distancias positivas
+        no_positives = [];
+        for j = 1:size(HR(i).instances)
+            Pi = trainingSet(HR(i).instances(j),1:end-1);
+            distance = dist(Pi, HR(i).mini, HR(i).maxi);
+            if(distance <= 0 )
+                no_positives = [no_positives; HR(i).instances(j)];
+            end
+        end
+        
         % Instancias do Hiper-Retangulo HR(i)
-        HRiSamples = trainingSet(HR(i).instances,:);
+        HRiSamples = trainingSet(no_positives,:);
 
         % Seleciona as classes das instancias do cluster atual
         classes = unique(HRiSamples(:,end));
@@ -116,7 +125,7 @@ function S = IRAHC(trainingSet, TETA)
             S = [S; HRiSamples];
         end
     end
-
-
+    
 end
+
 

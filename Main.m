@@ -5,7 +5,7 @@ clear all;
 %ESCOLHA DA BASE DE DADOS
 repetirLacoBase=1;
 while repetirLacoBase
-    escolha = input('Escolha a base de dados \n 0 - Iris \n 1 - Zoo \n 2 - Wine \n 3 - Sonar \n 4 - Glass \n 5 - Liver \n 6 - Ecoli \n 7 - Ionosphere \n');
+    escolha = input('Escolha a base de dados \n 0 - Iris \n 1 - Zoo \n 2 - Wine \n 3 - Sonar \n 4 - Glass \n 5 - Liver \n 6 - Ecoli \n 7 - Ionosphere \n 8 - Letter \n');
     if(escolha == 0)
         repetirLacoBase = 0;
         importIris;
@@ -38,6 +38,10 @@ while repetirLacoBase
         repetirLacoBase = 0;
         importIono;
         dataBaseName = 'Ionosphere';
+      elseif (escolha == 8)
+        repetirLacoBase = 0;
+        importLetter;
+        dataBaseName = 'Letter';
     end  
 end
 
@@ -203,6 +207,9 @@ R = mean(InstanceReductions)';
 disp('Reduction Percentage');
 disp('    THETA     R');
 disp([THETAS',R]);
+
+disp('melhor teta tem maior');
+disp([THETAS',(R./Errs')]);
 
 % Calcula a taxa balanceada de erro média para cada THETA de cada fold
 ber = mean(BERs)';
