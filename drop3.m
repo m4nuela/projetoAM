@@ -1,22 +1,26 @@
-function P = DROP3(T)
+function P = drop3(T)
+    
+    % Quantidade de vizinhos mais proximos
     k = 3;
     % Aplica o ENN previamente para remover os ruidos
     S = ENN(T);
-    
+    % Tamanho de S
     m = size(S,1);
-    % Mapeamento de vizinhos e associados de cada exemplo
+    
+    % Mapeamento de vizinhos e associados de cada exemplo de S
     Neighbors(1:m) = struct('neighbors', []);
     Associates(1:m) = struct('associates', []);
     
-    % Procura os vizinhos de cada padrao s e adiciona s às suas listas de 
-    % associados
+    % Procura os vizinhos de cada padrao s 
     for s = 1:m
+        % Padrao atual
         X = S(s,1:end-1);
-        % Armazena uma quantidade maior de vizinhos para a fase de buscar o
-        % outro vizinho mais proximo
+        % Armazena uma quantidade maior de vizinhos para a fase de busca 
+        % pelo outro vizinho mais proximo
         neighbors = KNN(X,S,k+25);
         Neighbors(s).neighbors = neighbors;
         
+        % Adiciona s as listas de associados de seus vizinhos
         for n = neighbors(1:k)'
             Associates(n).associates = [Associates(n).associates; s];
         end
@@ -37,42 +41,48 @@ function P = DROP3(T)
     temp = [indexes,S,Thetas];
     temp = sortrows(temp,-size(temp,2));
     
-    % Indices dos exemplos ordenados
+    % Indices dos exemplos de S ordenados
     order = temp(:,1)';
-    % Marca quem deverá ser removido
+    % Marca quem de S deverá ser removido
     marked = zeros(m,1);
     
+    % Conjunto final de prototipos
     P = [];
     
     for s = order
+        % Lista de associados de s
         associates = Associates(s).associates;
         if(~isempty(associates))
             x = 0; y = 0;
-            % Para cada padrao verifica se sua presença piora ou mantem a
-            % capacidade de classificação de seus associados
+            % Para cada associado verifica se a presença de s piora ou 
+            % mantem a capacidade de classificação
             for a =  associates'
                 neighbors = Neighbors(a).neighbors(1:k+1);
+                % k vizinhos mais proximos
                 neighbor_classes = S(neighbors(1:k),end);
-
+                
+                % Contabiliza se classificou corretamente
                 class = class_max(neighbor_classes);
                 if (S(a,end) == class)
                     x = x + 1;
                 end
-
+                
+                % k vizinhos mais proximos retirando s
                 neighbors = neighbors(neighbors ~= s);
                 neighbor_classes = S(neighbors,end);
-
+                
+                % Contabiliza se classificou erroneamente
                 class = class_max(neighbor_classes);
                 if (S(a,end) == class)
                     y = y + 1;
                 end    
             end
-            % Caso piore ou mantenha, remove s
+            % Caso piore ou mantenha a classificacao, remove s
             if(y - x) >= 0
                 marked(s) = 1;
             end
         end
-        
+        % Se estiver marcado para remocao
         if(marked(s))
             for a = associates'
                 % Retira s da lista de vizinhos de seus associados
@@ -81,7 +91,7 @@ function P = DROP3(T)
                 Neighbors(a).neighbors = neighbors;
                 
                 % Procura pelo proximo vizinho mais proximo e poe o
-                % associado em sua respectiva lista de associados
+                % associado a em sua respectiva lista de associados
                 new_neighbor = neighbors(k);
                 associates = Associates(new_neighbor).associates;
                 Associates(new_neighbor).associates = [associates; a];
@@ -95,7 +105,7 @@ function P = DROP3(T)
             end
             
         else
-            % Coloca s no conjunto final de prototipos
+            % Caso não esteja marcado, coloca s no conjunto de prototipos
             P = [P; S(s,:)];
         end
     end

@@ -1,6 +1,8 @@
 
-% IMPORTACAO E PRE-PROCESSAMENTO DOS DADOS
 clear all;
+
+% Melhor valor de teta, alterado para cada base
+best_teta = 0.2;
 
 %ESCOLHA DA BASE DE DADOS
 repetirLacoBase=1;
@@ -10,18 +12,22 @@ while repetirLacoBase
         repetirLacoBase = 0;
         importIris;
         dataBaseName = 'Iris';
+        best_teta = 0.1;
     elseif (escolha == 1)
         repetirLacoBase = 0;
         importZoo;
         dataBaseName = 'Zoo';
+        best_teta = 0.4;
     elseif (escolha == 2)
         repetirLacoBase = 0;
         importWine;
-        dataBaseName = 'Wine'; 
+        dataBaseName = 'Wine';
+        best_teta = 0.4;
     elseif (escolha == 3)
         repetirLacoBase = 0;
         importSonar;
         dataBaseName = 'Sonar';
+        best_teta = 0.7;
     elseif (escolha == 4)
         repetirLacoBase = 0;
         importGlass;
@@ -38,6 +44,7 @@ while repetirLacoBase
         repetirLacoBase = 0;
         importIono;
         dataBaseName = 'Ionosphere';
+        best_teta = 0.3;
     elseif (escolha == 8)
         repetirLacoBase = 0;
         importPendigits;
@@ -54,6 +61,7 @@ while repetirLacoBase
         repetirLacoBase = 0;
         importVehicle;
         dataBaseName = 'Vehicle';
+        best_teta = 0.2;
      elseif (escolha == 12)
         repetirLacoBase = 0;
         importYeast;
@@ -61,54 +69,46 @@ while repetirLacoBase
     end  
 end
 
-
+% IMPORTACAO E PRE-PROCESSAMENTO DOS DADOS
 [m,n] = size(data);
 
 % K-FOLD CROSS VALIDATION
 k = 10;
 kFolds = kFoldCrossValidation(data,k);
 
-% DIVISAO DOS DADOS ANTIGA
-%{
-% Desordenando a base e criando os conjuntos de treinamento e teste (70% 
-% e 30% de toda base importada, respectivamente).
-mixedRows = data(randperm(m),:);
+% Variacao do parametro de expansao TETA
+TETAS = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1];
+% Taxas de acerto para valor de TETA de cada fold
+IRAHC_Results = zeros(10,10);
+% Taxas de erro balanceada para cada valor de TETA de cada fold
+IRAHC_BERs = zeros(10,10);
+% Taxa de reducao para cada valor de TETA de cada fold
+IRAHC_Reductions = zeros(10,10);
+% Tempo de computação para cada valor de TETA de cada fold
+IRAHC_Times = 0;
 
-trainingSet = mixedRows(1:floor(m*0.7),:);
-testSet = mixedRows(ceil(m*0.7):end,:);
-%}
-
-% Variacao de THETA
-THETAS = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1];
-% Taxas de acerto para valor de THETA de cada fold
-TETAResults = zeros(10,10);
-% Taxas balanceadas de erro para cada valor de THETA de cada fold
-BERs = zeros(10,10);
-% Taxa de reducao para cada valor de THETA de cada fold
-InstanceReductions = zeros(10,10);
-
-%tempo de computação do algoritmo IRAHC com TETHA escolhido
-tempoI = 0;
-
+% Resultados do ENN para todos os folds
 ENN_Results = zeros(10,1);
-ENN_IR = zeros(10,1);
+ENN_Reductions = zeros(10,1);
 ENN_BERs = zeros(10,1);
 ENN_Time = 0;
 
+% Resultados do ATISA2 para todos os folds
 ATISA2_Results = zeros(10,1);
-ATISA2_IR = zeros(10,1);
+ATISA2_Reductions = zeros(10,1);
 ATISA2_BERs = zeros(10,1);
 ATISA2_Time = 0;
 
+% Resultados do DROP3 para todos os folds
 DROP3_Results = zeros(10,1);
-DROP3_IR = zeros(10,1);
+DROP3_Reductions = zeros(10,1);
 DROP3_BERs = zeros(10,1);
 DROP3_Time = 0;
 
-% Para todas as K configurações de conjuntos (folds)
+% Para todas as K configurações de conjuntos de dados(folds)
 folds = 1:k;
 for i = folds
-    % Conjunto de treinamento será formado por todos os folds restantes
+    % Conjunto de treinamento será formado por todos os folds ~= de i
     trainingSet = [];
     for j = folds(folds~=i)
         trainingSet = [trainingSet ; kFolds(j).fold];
@@ -116,15 +116,15 @@ for i = folds
     % Desordenando o conjunto de treinamento 
     trainingSet = trainingSet(randperm(size(trainingSet,1)),:);
     
-    % Calcula o range pra cada coluna do conjunto de treinamento
+    % Calcula o range e valor minimo pra cada coluna do conjunto de treinamento
     ranges = zeros((size(trainingSet,2)-1),2);
     for j = 1:(size(trainingSet,2)-1)
         Maxi = max(trainingSet(:,j));
         Mini = min(trainingSet(:,j));
         range = Maxi-Mini;
-        if (Maxi-Mini)==0
+        if ((Maxi-Mini) == 0)
             range = Maxi;
-            if range == 0
+            if (range == 0)
                 ranges(j,:) = [1, 0];
             else
                 ranges(j,:) = [range, 0];
@@ -135,7 +135,7 @@ for i = folds
         
     end
     
-    % Normaliza o conjunto de treinamento
+    % Normaliza o conjunto de treinamento ((X - MIN) / (MAX-MIN))
     for j = 1:size(trainingSet,2)-1
         trainingSet(:,j) = (trainingSet(:,j) - ranges(j,2))/ranges(j,1);
     end
@@ -148,31 +148,35 @@ for i = folds
         testSet(:,j) = (testSet(:,j) - ranges(j,2))/ranges(j,1);
     end
     
-    % ALGORITMO PROPOSTO
+    % ALGORITMO PROPOSTO - IRAHC
     
-    % Para cada valor de expansao THETA
-    for THETA = THETAS
+    % Para cada valor de expansao TETA
+    for TETA = TETAS
         % Gera um conjunto de protótipos pelo IRAHC
-        if THETA == 0.2
+        
+        % Calcula o tempo para o teta escolhido
+        if TETA == best_teta
             tic
-             S = IRAHC(trainingSet,THETA);
-            tempoI = tempoI + toc;
+            S = IRAHC(trainingSet,TETA);
+            IRAHC_Times = IRAHC_Times + toc;
         else
-             S = IRAHC(trainingSet,THETA);
+             S = IRAHC(trainingSet,TETA);
         end
       
-        % Teste do KNN(k=3) sobre o parametro THETA atual
+        % Teste do KNN(k=3) sobre o parametro TETA atual
         [accuracy,BER] = TestKNN(S,testSet);
         
         % Armazena os diferentes resultados da iteracao atual
-        TETAResults(i,THETA == THETAS) =  accuracy;
+        IRAHC_Results(i,TETA == TETAS) =  accuracy;
         
         reduction = ((size(trainingSet,1) - size(S,1)) / size(trainingSet,1)) * 100;
-        InstanceReductions(i,THETA == THETAS) = reduction;
+        IRAHC_Reductions(i,TETA == TETAS) = reduction;
         
-        BERs(i,THETA == THETAS) = BER;
+        IRAHC_BERs(i,TETA == TETAS) = BER;
     end
    
+    % Armazena o desempenho dos algoritmos concorrentes
+    
     % ENN
     tic
     S = ENN(trainingSet);
@@ -180,7 +184,7 @@ for i = folds
     [accuracy,BER] = TestKNN(S,testSet);
     ENN_Results(i) = accuracy;
     reduction = ((size(trainingSet,1) - size(S,1)) / size(trainingSet,1)) * 100;
-    ENN_IR(i) = reduction;
+    ENN_Reductions(i) = reduction;
     ENN_BERs(i) = BER;
     
     % ATISA2
@@ -190,7 +194,7 @@ for i = folds
     [accuracy,BER] = TestKNN(S,testSet);
     ATISA2_Results(i) = accuracy;
     reduction = ((size(trainingSet,1) - size(S,1)) / size(trainingSet,1)) * 100;
-    ATISA2_IR(i) = reduction;
+    ATISA2_Reductions(i) = reduction;
     ATISA2_BERs(i) = BER;
     
     % DROP3
@@ -200,7 +204,7 @@ for i = folds
     [accuracy,BER] = TestKNN(S,testSet);
     DROP3_Results(i) = accuracy;
     reduction = ((size(trainingSet,1) - size(S,1)) / size(trainingSet,1)) * 100;
-    DROP3_IR(i) = reduction;
+    DROP3_Reductions(i) = reduction;
     DROP3_BERs(i) = BER;
 end
 
@@ -209,32 +213,33 @@ disp(dataBaseName);
 
 % IRAHC RESULTS
 disp('IRAHC RESULTS');
-% Calcula a taxa de acerto média para cada THETA de cada fold
-accuracy = mean(TETAResults);
+% Calcula a taxa de acerto média para cada TETA
+accuracy = mean(IRAHC_Results);
 
-% Calcula a taxa de erro média para cada THETA de cada fold
+% Calcula a taxa de erro média para cada TETA
 disp('Error Rate');
 Errs = 100 - accuracy;
-disp('    THETA     ERR');
-disp([THETAS',Errs']);
+disp('    TETA     ERR');
+disp([TETAS',Errs']);
 
-% Calcula a taxa de redução média para cada THETA de cada fold
-R = mean(InstanceReductions)';
+% Calcula a taxa de redução média para cada TETA
+R = mean(IRAHC_Reductions)';
 disp('Reduction Percentage');
-disp('    THETA     R');
-disp([THETAS',R]);
+disp('    TETA     R');
+disp([TETAS',R]);
 
-disp('melhor teta tem maior');
-disp([THETAS',(R./Errs')]);
+disp('Razao entre R e Err');
+disp([TETAS',(R./Errs')]);
 
-% Calcula a taxa balanceada de erro média para cada THETA de cada fold
-ber = mean(BERs)';
+% Calcula a taxa de erro balanceada média para cada TETA
+ber = mean(IRAHC_BERs)';
 disp('Balance Error Rate');
-disp('    THETA      BER');
-disp([THETAS',ber]);
+disp('    TETA      BER');
+disp([TETAS',ber]);
 
+% Calcula o tempo de computacao médio do teta escolhido
 disp('Average computation time')
-disp(tempoI/10);
+disp(IRAHC_Times/10);
 
 
 % ENN RESULTS
@@ -245,15 +250,12 @@ disp('Error Rate');
 Errs = 100 - accuracy;
 disp(Errs);
 disp('Reduction Percentage');
-R = mean(ENN_IR);
+R = mean(ENN_Reductions);
 disp(R);
 disp('Balance Error Rate');
 ber = mean(ENN_BERs);
 disp(ber);
-%disp('Accuracy x Reduction');
-%AR = accuracy * R;
-%disp(AR);
-disp('Average computation time')
+disp('Average Computation Time');
 disp(ENN_Time/10);
 
 % ATISA2 RESULTS
@@ -264,7 +266,7 @@ disp('Error Rate');
 Errs = 100 - accuracy;
 disp(Errs);
 disp('Reduction Percentage');
-R = mean(ATISA2_IR);
+R = mean(ATISA2_Reductions);
 disp(R);
 disp('Balance Error Rate');
 ber = mean(ATISA2_BERs);
@@ -272,7 +274,7 @@ disp(ber);
 %disp('Accuracy x Reduction');
 %AR = accuracy * R;
 %disp(AR);
-disp('Average computation time')
+disp('Average Computation Time');
 disp(ATISA2_Time/10);
 
 % DROP3 RESULTS
@@ -283,14 +285,11 @@ disp('Error Rate');
 Errs = 100 - accuracy;
 disp(Errs);
 disp('Reduction Percentage');
-R = mean(DROP3_IR);
+R = mean(DROP3_Reductions);
 disp(R);
 disp('Balance Error Rate');
 ber = mean(DROP3_BERs);
 disp(ber);
-%disp('Accuracy x Reduction');
-%AR = accuracy * R;
-%disp(AR);
-disp('Average computation time')
+disp('Average Computation Time');
 disp(DROP3_Time/10);
 

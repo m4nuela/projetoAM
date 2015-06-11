@@ -3,7 +3,7 @@ function S = ENN(trainingSet)
     % iniciando ele vazio, e marcando os vetores de T que deveriam ser
     % removidos de S, para que não sejam considerados no FOR abaixo. 
     % No final, S será formado pelos vetores de T não marcados, ou seja, 
-    % "não removidos".
+    % "nao removidos".
     
     S = [];
     % declarando array que marca as instâncias removidas
@@ -15,14 +15,14 @@ function S = ENN(trainingSet)
           % Pega o vizinho mais próximo da instância, sobre o conjunto de
           % treinamento.
           [~,~,class_max] = KNN(trainingSet(j,1:end-1),trainingSet,1);
-          % Marca-o caso sua classe seja diferente da instância atual
+          % Marca-o, caso sua classe seja diferente da instância atual
           if(trainingSet(j,end) ~= class_max)
               marked(j) = 1;
           end
         end
     end
     
-    % S será formado por todas as entradas de do conjunto de treinamento
+    % S será formado por todas as entradas do conjunto de treinamento
     % não marcadas
     for j = 1:size(marked)
        if ~marked(j)

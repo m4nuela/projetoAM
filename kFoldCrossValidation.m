@@ -27,9 +27,12 @@ function kFolds = kFoldCrossValidation(data, k)
                 % utilizada, garantindo que os conjuntos serão disjuntos
                 first = first + maxFold;
             else
+                % Chegando ao ultimo fold possivel
                 kFolds(j).fold = [kFolds(j).fold ; iSamples(first:(first+maxFold-1),:)]; 
                 first = first + maxFold;
+                % Se chegou ao fim, e sobraram instancias
                 if (j == k && modi > 0)
+                    % Distribui sobre os outros folds
                     for l = 1:modi
                        kFolds(l).fold = [kFolds(l).fold ; iSamples(first,:)]; 
                        first = first + 1;
@@ -37,7 +40,6 @@ function kFolds = kFoldCrossValidation(data, k)
                 end
                 break;
             end
-            
         end
     end
 end

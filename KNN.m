@@ -13,10 +13,11 @@ function [neighbor, distance, class] = KNN(X, T, k)
     %Ordenando pelas distâncias
     distances = sortrows(distances, 2);
     
+    % Selecionando os indices e distancias dos k vizinhos mais proximos
+    % Caso a distancia para o primeiro vizinho mais proximo seja 0
     if (distances(1,2) == 0)
-        
+        % Se existirem outros padroes, ignora este, pois corresponde ao X
         if size(distances,1) > 1
-            % Selecionando o indice do vetor mais próximo
             neighbor = distances(2:k+1,1);
             distance = distances(2:k+1,2);
         else
@@ -30,7 +31,6 @@ function [neighbor, distance, class] = KNN(X, T, k)
     
     % Guardando as classes destes k vetores
     neighbor_classes = T(neighbor,end);
-    
     class = class_max(neighbor_classes);
     
 end

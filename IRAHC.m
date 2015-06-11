@@ -1,5 +1,5 @@
 function S = IRAHC(trainingSet, TETA)
-    % PARTE I
+    % PARTE I - AGRUPAMENTO EM HIPER-RETANGULOS
     
     % Separa os dados e suas classes
     samples = trainingSet(:,1:end-1);
@@ -17,13 +17,13 @@ function S = IRAHC(trainingSet, TETA)
     maxi = X;
     HR(1) = struct( 'class', class, 'mini', mini, 'maxi', maxi, 'instances', 1);
 
-    % Para todos os demais padrões de treinamento
+    % Para todos os demais padrOes de treinamento
     for p = 2:size(samples,1)
 
         X = samples(p,:);
         class = labels(p);
 
-        % Flag para identificar se o padrão atual X foi alocado a algum cluster
+        % Flag para identificar se o padrAo atual X foi alocado a algum cluster
         belongs = 0;
 
         % Calcula as distancias entre X e todos os Hiper-Retangulos
@@ -37,26 +37,28 @@ function S = IRAHC(trainingSet, TETA)
         %Ordenando pelas distâncias calculadas
         distances = sortrows(distances, 2);
 
-        % Verifica se X pertence a algum hiper-retangulo de mesma classe
+        % Para todos os hiper-retangulos, verifica se X possui mesma classe
+        % e dista deste por um valor nao-positivo
         for i = distances(:,1)'
             if ((HR(i).class == class) && (distances(i,2) <= 0))
-                if not(ismember(p, HR(i).instances))
-                    HR(i).instances = [HR(i).instances ; p];
-                end;
+                % Adiciona X a este cluster
+                HR(i).instances = [HR(i).instances ; p];
                 
                 belongs = 1;
                 break;
             end
         end
 
-        % Se nao pertence, procura por um HR que seja de mesma classe que X e 
-        % satisfaça o criterio de expansao
+        % Se nao encontrar, procura por um HR que seja de mesma classe que 
+        % X e satisfaça o criterio de expansao em funcao de Teta
         if (belongs == 0)
-            for i = distances(:,1)' %1:size(HR,1) 
+            for i = distances(:,1)'
+                    % Calcula a diferenca entre os atributos maximos e minimos
+                    % entre X e as arestas de HR(i) 
                     maxi = max(HR(i).maxi, X);
                     mini = min(HR(i).mini, X);
-                    % Calcula a diferenca entre as colunas de X e do Hiper-Retangulo
                     diff = maxi - mini;
+                    
                     % Compara com o parametro de expansao
                     resp = (diff <= N*TETA);
 
@@ -72,7 +74,8 @@ function S = IRAHC(trainingSet, TETA)
             end
         end
 
-        % Se nao encontrou um cluster, cria um novo HR, com X como representante
+        % Se ainda nao encontrou um cluster, cria um novo HR, com X como 
+        % representante, ou seja, de mesma classe e no mesmo ponto
         if (belongs == 0)
             mini = X;
             maxi = X;
@@ -80,37 +83,24 @@ function S = IRAHC(trainingSet, TETA)
         end    
 
     end
-%{
-    % teste das distancias nao-positivas
-    for i = 1:size(HR,1)
-        allNoPositive = 1;
-        for j = 1:size(HR(i).instances)
-            Pi = trainingSet(HR(i).instances(j),1:end-1);
-            distance = dist(Pi, HR(i).mini, HR(i).maxi);
-            if(distance > 0 )
-                allNoPositive = 0;
-                break;
-            end
-        end
-        disp(allNoPositive);
-    end
-%}
-   % PARTE II
+
+    % PARTE II - CRIACAO DO CONJUNTO DE PROTOTIPOS
     % Conjunto de prototipos a ser gerado
     S = [];
     
+    % Para todos os clusters
     for i = 1:size(HR,1)
-        % Remover instâncias com distancias positivas
+        % Remover instâncias com distancias maiores que zero
         no_positives = [];
         for j = 1:size(HR(i).instances)
             Pi = trainingSet(HR(i).instances(j),1:end-1);
             distance = dist(Pi, HR(i).mini, HR(i).maxi);
-            if(distance <= 0 )
+            if (distance <= 0)
                 no_positives = [no_positives; HR(i).instances(j)];
             end
         end
         
-        % Instancias do Hiper-Retangulo HR(i)
+        % Instancias remanescentes do Hiper-Retangulo HR(i)
         HRiSamples = trainingSet(no_positives,:);
 
         % Seleciona as classes das instancias do cluster atual
@@ -120,7 +110,7 @@ function S = IRAHC(trainingSet, TETA)
         if (size(classes,1) == 1)
             m = mean(HRiSamples,1);
             S = [S ; m];
-        % Caso contrário, todas as instancias do cluster farão parte de S
+        % Caso contrário, todas as instancias do cluster serao preservadas
         else
             S = [S; HRiSamples];
         end

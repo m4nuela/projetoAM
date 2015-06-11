@@ -12,17 +12,14 @@ function [neighbor,distance] = NE(X, T, class)
     %Ordenando pelas distâncias
     distances = sortrows(distances, 2);
     
-    %indexs = label ~= T(distances(:,1),end);
-    %distances = distances(indexs,:);
-    
+    % Procura o inimigo mais proximo
     for i = 1:size(distances,1)   
         if (class ~= T(distances(i,1),end))
             break;
         end
     end
     
-    % Selecionando os indices dos k vetores mais próximos
-    %result = distances(k,:);
+    % Retorna o indice do inimigo mais proximo da tabela de treinamento T
     neighbor = distances(i,1);
     distance = distances(i,2);
 

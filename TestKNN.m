@@ -1,19 +1,19 @@
 function [result,BER] = TestKNN(trainingSet, testSet)
-
+    % Executa o teste do classificador KNN
     k = 3;
     correct = 0;
+    % Armazena as classes unicas e seu mapeamento no conjunto de teste
     [classes, ~, map_classes] = unique(testSet(:,end));
     % Conta o numero de padroes erroneamente classificados de cada classe
-    berArray = [classes,zeros(size(classes,1),1)]; %zeros(size(classes,1),2);
-    %berArray(:,1) = 1:size(classes,1);
-    % Taxa balanceada do erro
+    berArray = [classes,zeros(size(classes,1),1)];
+    % Taxa de erro balanceada
     BER = 0;
     
     for w = 1:size(testSet,1)
         % Vetor de teste/entrada
         X = testSet(w,1:end-1);
 
-        % Matrix que armazena as distancias de cada instancia Y do
+        % Matriz que armazena as distancias de cada instancia Y do
         % conjunto de treinamento até X
         distances = zeros(size(trainingSet,1),2);
 
@@ -55,6 +55,7 @@ function [result,BER] = TestKNN(trainingSet, testSet)
         if (realClass == resp)
             correct = correct + 1;
         else
+            % Aumenta a quantidade de erros da classe correspondente
             index = find(berArray(:,1) == realClass);
             berArray(index,2) = berArray(index,2) + 1;
         end
@@ -65,7 +66,7 @@ function [result,BER] = TestKNN(trainingSet, testSet)
     % Guarda a precisão computada e retorna seu valor
     result = (correct/size(testSet,1))*100;
     
-    % Calcula a taxa balanceada do erro
+    % Calcula a taxa de erro balanceada
     for m = 1:size(classes,1)
         % Para cada classe, divide o numero de instancias erroneamente
         % classificadas pelo total de instancias da classe atual
