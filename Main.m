@@ -5,7 +5,7 @@ clear all;
 %ESCOLHA DA BASE DE DADOS
 repetirLacoBase=1;
 while repetirLacoBase
-    escolha = input('Escolha a base de dados \n 0 - Iris \n 1 - Zoo \n 2 - Wine \n 3 - Sonar \n 4 - Glass \n 5 - Liver \n 6 - Ecoli \n 7 - Ionosphere \n 8 - Letter \n');
+    escolha = input('Escolha a base de dados \n 0 - Iris \n 1 - Zoo \n 2 - Wine \n 3 - Sonar \n 4 - Glass \n 5 - Liver \n 6 - Ecoli \n 7 - Ionosphere \n 8 - PenDigits \n 9 - wdbc \n 10 - Heart \n 11 - Vehicle \n 12 - Yeast \n');
     if(escolha == 0)
         repetirLacoBase = 0;
         importIris;
@@ -30,7 +30,7 @@ while repetirLacoBase
         repetirLacoBase = 0;
         importLiver;
         dataBaseName = 'Liver';  
-     elseif (escolha == 6)
+    elseif (escolha == 6)
         repetirLacoBase = 0;
         importEcoli;
         dataBaseName = 'Ecoli';
@@ -38,10 +38,26 @@ while repetirLacoBase
         repetirLacoBase = 0;
         importIono;
         dataBaseName = 'Ionosphere';
-      elseif (escolha == 8)
+    elseif (escolha == 8)
         repetirLacoBase = 0;
-        importLetter;
-        dataBaseName = 'Letter';
+        importPendigits;
+        dataBaseName = 'Pendigits';
+     elseif (escolha == 9)
+        repetirLacoBase = 0;
+        importWdbc;
+        dataBaseName = 'wdbc';
+     elseif (escolha == 10)
+        repetirLacoBase = 0;
+        importHeart;
+        dataBaseName = 'heart';
+     elseif (escolha == 11)
+        repetirLacoBase = 0;
+        importVehicle;
+        dataBaseName = 'Vehicle';
+     elseif (escolha == 12)
+        repetirLacoBase = 0;
+        importYeast;
+        dataBaseName = 'Yeast';
     end  
 end
 
